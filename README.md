@@ -4,13 +4,20 @@
 
 Ask a sysadmin question in plain English, get the correct command — running entirely on-device, no API key, no network, ~4 GB VRAM.
 
+[![model](https://img.shields.io/badge/%F0%9F%A4%97%20model-qwen__os__ai-yellow)](https://huggingface.co/SomeshRao007/qwen_os_ai)
+[![accuracy](https://img.shields.io/badge/harness%20accuracy-98.8%25-brightgreen)]()
+[![base](https://img.shields.io/badge/base-Qwen3.5--4B-blue)]()
+
 ```
 neurosh> ? find files over 100MB modified in the last week
 
   find / -type f -size +100M -mtime -7
 ```
-
   Searches from root for files larger than 100MB modified within 7 days.
+
+<!-- TODO: replace with a real demo GIF — boot the ISO in a VM, open the Plasma
+     widget, ask a question with wifi visibly off. Put it at docs/demo.gif -->
+<!-- ![demo](docs/demo.gif) -->
 
 ---
 
@@ -188,9 +195,21 @@ CMAKE_ARGS="-DGGML_CUDA=on" pip install --force-reinstall --no-cache-dir llama-c
 pip install -r requirements.txt
 ```
 
-The GGUF model is not in git (2.6 GB). Either export it yourself (step 2) or
-drop an existing `qwen3.5-4b-os-q4km.gguf` into `finetuning/q4_k_m-deploy/`,
-then:
+The GGUF model is not in git (2.6 GB). Pull it from Hugging Face:
+
+```bash
+pip install huggingface_hub
+hf download SomeshRao007/qwen_os_ai qwen3.5-4b-os-q4km.gguf \
+  --local-dir finetuning/q4_k_m-deploy/
+```
+
+Or run it standalone under Ollama — the repo ships a `Modelfile`:
+
+```bash
+ollama create os-ai -f Modelfile && ollama run os-ai "list all running services"
+```
+
+Then start the agent:
 
 ```bash
 python -m os_agent            # neurosh interactive shell
@@ -286,7 +305,17 @@ Known gaps:
 
 ---
 
+## Model
+
+The fine-tuned model is released separately at
+**[SomeshRao007/qwen_os_ai](https://huggingface.co/SomeshRao007/qwen_os_ai)** —
+Qwen3.5-4B QLoRA fine-tune, merged and quantized to GGUF Q4_K_M (2.6 GB),
+Apache-2.0. The repo includes Ollama `Modelfile`s (standard and
+thinking-enabled), the export script, and the GGUF eval harness.
+
 ## License
 
-<!-- TODO: add a LICENSE file. MIT is the usual choice for a portfolio project. -->
-MIT — see [LICENSE](LICENSE).
+<!-- TODO: add a LICENSE file to this repo. -->
+Code: MIT — see [LICENSE](LICENSE).
+Model weights: Apache-2.0, per the
+[model card](https://huggingface.co/SomeshRao007/qwen_os_ai).
